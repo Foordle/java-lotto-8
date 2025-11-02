@@ -7,11 +7,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public class Lotto {
-    private final List<Integer> numbers;
+    private final List<Integer> lottoNumbers;
 
     public Lotto(List<Integer> numbers) {
         validate(numbers);
-        this.numbers = numbers;
+        this.lottoNumbers = numbers;
     }
 
     private void validate(List<Integer> numbers) {
@@ -42,9 +42,18 @@ public class Lotto {
         Collections.sort(sortedNumbers); // java.util.Collections 사용
         return sortedNumbers;
     }
+    public boolean contains(int number) {
+        return lottoNumbers.contains(number);
+    }
+
+    public int lottoMatchCheck(Lotto winningNumber) {
+        return (int) lottoNumbers.stream()
+                .filter(winningNumber::contains)
+                .count();
+    }
 
     public boolean isContainsNumbers(int number) {
-        return numbers.contains(number);
+        return lottoNumbers.contains(number);
     }
 
 
