@@ -47,7 +47,7 @@ public enum Rank {
         return rankOrder;
     }
 
- 
+
     public String getDescription() {
         if (this == SECOND) {
             return String.format("%d개 일치, 보너스 볼 일치 (%s원)", matchCount, String.format("%,d", prize));
