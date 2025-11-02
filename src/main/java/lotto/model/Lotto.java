@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class Lotto {
     private static final int LOTTO_SIZE = 6;
@@ -18,7 +17,7 @@ public class Lotto {
         this.lottoNumbers = sortNumbers(numbers);
     }
 
-    // --- 유효성 검증 로직은 유지 및 정리 ---
+    // 유효성 검증 로직은 유지 및 정리
 
     private void validate(List<Integer> numbers) {
         if (numbers.size() != LOTTO_SIZE) {
@@ -50,20 +49,14 @@ public class Lotto {
         return sortedNumbers;
     }
 
-    // --- 비즈니스 로직 및 Getter ---
-
-    /**
-     * 당첨 번호를 가진 Lotto 객체를 인자로 받아 일치 개수를 반환합니다.
-     */
+    // 비즈니스 로직 및 Getter
     public int countMatch(Lotto winningLotto) {
         return (int) lottoNumbers.stream()
                 .filter(winningLotto::contains)
                 .count();
     }
 
-    /**
-     * 특정 번호가 로또에 포함되어 있는지 확인합니다. (보너스 번호 확인 등에 사용)
-     */
+
     public boolean contains(int number) {
         return lottoNumbers.contains(number);
     }
@@ -73,9 +66,7 @@ public class Lotto {
         return Collections.unmodifiableList(lottoNumbers);
     }
 
-    /**
-     * 객체의 문자열 표현을 반환하는 표준 메서드 (getLottoToString 대신 사용)
-     */
+
     @Override
     public String toString() {
         return lottoNumbers.toString();

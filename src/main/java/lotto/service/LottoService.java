@@ -66,12 +66,13 @@ public class LottoService {
     private Rank determineRank(Lotto lotto, Lotto winningLotto, int bonusNumber) {
         int matchCount = lotto.countMatch(winningLotto);
         boolean isBonusMatch = lotto.contains(bonusNumber);
+
         return Rank.measurementRank(matchCount, isBonusMatch);
     }
 
+
     private void incrementRankCount(Map<Rank, Integer> results, Rank rank) {
-        if (rank != Rank.MISS) {
-            results.put(rank, results.get(rank) + 1);
-        }
+        results.put(rank, results.getOrDefault(rank, 0) + 1);
     }
+
 }
