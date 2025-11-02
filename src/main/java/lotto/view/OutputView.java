@@ -4,9 +4,6 @@ import lotto.model.Lottos;
 import lotto.model.LottoResult;
 import lotto.model.Rank;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class OutputView {
 
     // 로또 발행 출력은 그대로 유지
