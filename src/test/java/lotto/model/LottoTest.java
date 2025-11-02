@@ -84,8 +84,6 @@ class LottoTest {
     }
 
 
-    // --- 3. lottoMatchCheck(Lotto winningNumber) 테스트 ---
-
     @DisplayName("두 로또 번호의 일치 개수를 정확히 반환한다. (4개 일치)")
     @Test
     void lottoMatchCheck_4개_일치() {

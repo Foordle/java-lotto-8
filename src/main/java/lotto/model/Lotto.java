@@ -56,6 +56,15 @@ public class Lotto {
         return lottoNumbers.contains(number);
     }
 
+    // lotto.model.Lotto 클래스에 추가 (또는 이미 구현된 코드를 확인)
+
+
+    public String getLottoToString() {
+        // List의 내용을 [1, 2, 3, 4, 5, 6] 형태로 출력해야 합니다.
+        return lottoNumbers.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(", ", "[", "]"));
+    }
 
 
 }
