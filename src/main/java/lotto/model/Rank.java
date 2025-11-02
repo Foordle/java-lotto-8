@@ -25,7 +25,7 @@ public enum Rank {
     }
 
     // 매칭된 개수와 보너스 번호 일치 여부로 Rank 결정
-    public static Rank of(int matchCount, boolean bonusMatched) {
+    public static Rank measurementRank(int matchCount, boolean bonusMatched) {
         if (matchCount == 6) {
             return FIRST;
         }
