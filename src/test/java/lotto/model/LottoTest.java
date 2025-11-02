@@ -59,14 +59,10 @@ class LottoTest {
     void 로또_객체_정상_생성() {
         // given
         List<Integer> validNumbers = List.of(1, 20, 30, 40, 45, 10);
-
         // when & then
         // 예외가 발생하지 않는 것을 검증
         org.junit.jupiter.api.Assertions.assertDoesNotThrow(() -> new Lotto(validNumbers));
     }
-
-
-
 
     @DisplayName("특정 번호가 로또 번호에 포함되어 있는지 확인한다.")
     @ParameterizedTest
@@ -74,7 +70,6 @@ class LottoTest {
     void contains_포함된_번호_확인(int number) {
         // given
         Lotto lotto = new Lotto(List.of(1, 10, 20, 30, 40, 45));
-
         // when & then
         assertThat(lotto.contains(number)).isTrue();
     }
@@ -84,7 +79,6 @@ class LottoTest {
     void contains_포함되지_않은_번호_확인() {
         // given
         Lotto lotto = new Lotto(List.of(1, 10, 20, 30, 40, 45));
-
         // when & then
         assertThat(lotto.contains(99)).isFalse();
     }
@@ -101,7 +95,6 @@ class LottoTest {
 
         // when
         int matchCount = myLotto.lottoMatchCheck(winningLotto);
-
         // then
         assertThat(matchCount).isEqualTo(4);
     }
