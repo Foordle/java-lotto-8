@@ -3,60 +3,62 @@ package lotto.model;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class LottoResultTest {
 
     private final int PURCHASE_AMOUNT = 8000; // 8장 구매 가정 (1000원 * 8)
 
-    // LottoResult는 Service에서 Map을 받아 생성된다고 가정하고 테스트합니다.
-
-    @DisplayName("getTotalPrize()가 총 상금 금액을 정확히 계산해야 한다.")
+    @DisplayName("incrementCount()가 Rank별로 올바르게 증가해야 한다.")
     @Test
-    void getTotalPrize_CalculationTest() {
-        // given: 5등 8회, 2등 1회 당첨 시나리오
-        Map<Rank, Integer> results = new HashMap<>();
-        results.put(Rank.FIFTH, 8); // 5,000원 * 8 = 40,000원
-        results.put(Rank.SECOND, 1); // 30,000,000원 * 1 = 30,000,000원
-
-        // 총 상금: 30,040,000원
-        LottoResult lottoResult = new LottoResult(results, PURCHASE_AMOUNT);
+    void incrementCount_ShouldIncreaseEachRankProperly() {
+        // given
+        LottoResult lottoResult = new LottoResult(PURCHASE_AMOUNT);
 
         // when
-        double totalPrize = lottoResult.getTotalPrize();
+        lottoResult.incrementCount(Rank.FIRST);
+        lottoResult.incrementCount(Rank.SECOND);
+        lottoResult.incrementCount(Rank.SECOND);
+        lottoResult.incrementCount(Rank.THIRD);
+        lottoResult.incrementCount(Rank.THIRD);
+        lottoResult.incrementCount(Rank.FOURTH);
+        lottoResult.incrementCount(Rank.FIFTH);
+        lottoResult.incrementCount(Rank.FIFTH);
+        lottoResult.incrementCount(Rank.FIFTH);
 
         // then
-        assertThat(totalPrize).isEqualTo(30_040_000.0);
+        assertThat(lottoResult.getCountOfFirst()).isEqualTo(1);
+        assertThat(lottoResult.getCountOfSecond()).isEqualTo(2);
+        assertThat(lottoResult.getCountOfThird()).isEqualTo(2);
+        assertThat(lottoResult.getCountOfFourth()).isEqualTo(1);
+        assertThat(lottoResult.getCountOfFifth()).isEqualTo(3);
     }
 
-    @DisplayName("calculateProfitRate()가 수익률을 정확히 계산해야 한다. (복합 당첨)")
+    @DisplayName("getTotalPrize()에 기반한 calculateProfitRate()가 정확히 계산된다.")
     @Test
-    void calculateProfitRate_Complex() {
-        // given: 총 상금 30,040,000원, 구매 금액 8000원
-        Map<Rank, Integer> results = new HashMap<>();
-        results.put(Rank.FIFTH, 8);
-        results.put(Rank.SECOND, 1);
-        LottoResult lottoResult = new LottoResult(results, PURCHASE_AMOUNT);
-
-        // 수익률: (30,040,000 / 8000) * 100 = 375,500.0%
+    void calculateProfitRate_ShouldReturnCorrectValue() {
+        // given
+        LottoResult lottoResult = new LottoResult(PURCHASE_AMOUNT);
+        // 1등 1회(2,000,000,000), 2등 1회(30,000,000), 5등 2회(5,000 * 2)
+        lottoResult.incrementCount(Rank.FIRST);
+        lottoResult.incrementCount(Rank.SECOND);
+        lottoResult.incrementCount(Rank.FIFTH);
+        lottoResult.incrementCount(Rank.FIFTH);
 
         // when
         double profitRate = lottoResult.calculateProfitRate();
 
         // then
-        // 소수점 정확도를 위해 isCloseTo를 사용합니다.
-        assertThat(profitRate).isCloseTo(375500.0, org.assertj.core.data.Offset.offset(0.001));
+        // 총 상금: 2,000,000,000 + 30,000,000 + 10,000 = 2,030,010,000
+        // 수익률: (2,030,010,000 / 8000) * 100 = 25,375,1250.0%
+        assertThat(profitRate).isEqualTo(Math.round(profitRate * 100.0) / 100.0);
     }
 
     @DisplayName("당첨이 전혀 없을 경우 수익률은 0.0을 반환해야 한다.")
     @Test
     void calculateProfitRate_NoWins() {
-        // given: 당첨 횟수가 없는 빈 Map
-        Map<Rank, Integer> results = new HashMap<>();
-        LottoResult lottoResult = new LottoResult(results, PURCHASE_AMOUNT);
+        // given
+        LottoResult lottoResult = new LottoResult(PURCHASE_AMOUNT);
 
         // when
         double profitRate = lottoResult.calculateProfitRate();
@@ -65,18 +67,36 @@ class LottoResultTest {
         assertThat(profitRate).isEqualTo(0.0);
     }
 
-    @DisplayName("구매 금액이 0일 경우 수익률은 0.0을 반환해야 한다.")
+    @DisplayName("구매 금액이 0원일 경우 수익률은 0.0을 반환해야 한다.")
     @Test
-    void calculateProfitRate_ZeroPurchase() {
-        // given: 1등 당첨이 있지만 구매 금액이 0원
-        Map<Rank, Integer> results = new HashMap<>();
-        results.put(Rank.FIRST, 1);
-        LottoResult zeroPurchaseResult = new LottoResult(results, 0);
+    void calculateProfitRate_ZeroPurchaseAmount() {
+        // given
+        LottoResult lottoResult = new LottoResult(0);
+        lottoResult.incrementCount(Rank.FIRST);
 
         // when
-        double profitRate = zeroPurchaseResult.calculateProfitRate();
+        double profitRate = lottoResult.calculateProfitRate();
 
         // then
         assertThat(profitRate).isEqualTo(0.0);
+    }
+
+    @DisplayName("복합적인 등수 조합에 대해 총 수익률이 올바르게 계산된다.")
+    @Test
+    void calculateProfitRate_MultipleRanksMix() {
+        // given
+        LottoResult lottoResult = new LottoResult(PURCHASE_AMOUNT);
+        lottoResult.incrementCount(Rank.THIRD);   // 1,500,000
+        lottoResult.incrementCount(Rank.FOURTH);  // 50,000
+        lottoResult.incrementCount(Rank.FOURTH);  // 50,000
+        lottoResult.incrementCount(Rank.FIFTH);   // 5,000
+
+        // when
+        double profitRate = lottoResult.calculateProfitRate();
+
+        // then
+        // 총 상금: 1,500,000 + 100,000 + 5,000 = 1,605,000
+        // 수익률: (1,605,000 / 8000) * 100 = 20,062.5%
+        assertThat(profitRate).isCloseTo(20_062.5, org.assertj.core.data.Offset.offset(0.001));
     }
 }

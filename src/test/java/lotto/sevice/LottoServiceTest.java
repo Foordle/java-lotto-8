@@ -4,13 +4,11 @@ import lotto.service.LottoService;
 import lotto.model.Lottos;
 import lotto.model.Lotto;
 import lotto.model.LottoResult;
-import lotto.model.Rank;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -21,7 +19,7 @@ public class LottoServiceTest {
     @Test
     void buyLottos_validAmount_createsCorrectCount() {
         // given
-        int purchaseAmount = 5000; // 5장 구매
+        int purchaseAmount = 5000; // 5장
 
         // when
         Lottos lottos = lottoService.buyLottos(purchaseAmount);
@@ -30,7 +28,7 @@ public class LottoServiceTest {
         assertThat(lottos.getLottos()).hasSize(5);
     }
 
-    @DisplayName("구입 금액이 0원 이하이면 예외가 발생한다.")
+    @DisplayName("구입 금액이 0 이하이면 예외가 발생한다.")
     @Test
     void buyLottos_amountBelowZero_throwsException() {
         assertThatThrownBy(() -> lottoService.buyLottos(0))
@@ -52,22 +50,22 @@ public class LottoServiceTest {
         // given
         Lottos purchased = new Lottos(List.of(new Lotto(List.of(1, 2, 3, 4, 5, 6))));
         Lotto winning = new Lotto(List.of(1, 2, 3, 4, 5, 6));
-        int bonus = 6;
+        int bonusNumber = 6; // 중복
 
         // when & then
-        assertThatThrownBy(() -> lottoService.calculateResults(purchased, winning, bonus, 1000))
+        assertThatThrownBy(() -> lottoService.calculateResults(purchased, winning, bonusNumber, 1000))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("보너스 번호는 당첨 번호와 중복될 수 없습니다");
     }
 
-    @DisplayName("당첨 로또와 일치하는 개수에 따라 Rank가 올바르게 계산된다.")
+    @DisplayName("각 로또의 당첨 결과를 정확히 집계해야 한다.")
     @Test
-    void calculateResults_returnsCorrectRanks() {
+    void calculateResults_returnsCorrectCounts() {
         // given
         Lottos purchased = new Lottos(List.of(
-                new Lotto(List.of(1, 2, 3, 4, 5, 6)), // 6개 일치 → 1등
-                new Lotto(List.of(1, 2, 3, 4, 5, 7)), // 5개 + 보너스 → 2등
-                new Lotto(List.of(1, 2, 3, 4, 5, 8)), // 5개 → 3등
+                new Lotto(List.of(1, 2, 3, 4, 5, 6)),  // 6개 → 1등
+                new Lotto(List.of(1, 2, 3, 4, 5, 7)),  // 5개+보너스 → 2등
+                new Lotto(List.of(1, 2, 3, 4, 5, 8)),  // 5개 → 3등
                 new Lotto(List.of(1, 2, 3, 4, 9, 10)), // 4개 → 4등
                 new Lotto(List.of(1, 2, 3, 11, 12, 13)), // 3개 → 5등
                 new Lotto(List.of(40, 41, 42, 43, 44, 45)) // 0개 → MISS
@@ -81,13 +79,14 @@ public class LottoServiceTest {
         LottoResult result = lottoService.calculateResults(purchased, winning, bonusNumber, purchaseAmount);
 
         // then
-        Map<Rank, Integer> counts = result.getWinningCounts();
+        assertThat(result.getCountOfFirst()).isEqualTo(1);
+        assertThat(result.getCountOfSecond()).isEqualTo(1);
+        assertThat(result.getCountOfThird()).isEqualTo(1);
+        assertThat(result.getCountOfFourth()).isEqualTo(1);
+        assertThat(result.getCountOfFifth()).isEqualTo(1);
 
-        assertThat(counts.get(Rank.FIRST)).isEqualTo(1);
-        assertThat(counts.get(Rank.SECOND)).isEqualTo(1);
-        assertThat(counts.get(Rank.THIRD)).isEqualTo(1);
-        assertThat(counts.get(Rank.FOURTH)).isEqualTo(1);
-        assertThat(counts.get(Rank.FIFTH)).isEqualTo(1);
-        assertThat(counts.get(Rank.MISS)).isEqualTo(1);
+        // 6개 중 MISS 1개 → 1등~5등 합계가 5, 정상적으로 누적됨
+        double profitRate = result.calculateProfitRate();
+        assertThat(profitRate).isGreaterThan(0.0);
     }
 }

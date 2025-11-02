@@ -26,21 +26,25 @@ public enum Rank {
 
     // 매칭된 개수와 보너스 번호 일치 여부로 Rank 결정
     public static Rank measurementRank(int matchCount, boolean bonusMatched) {
-        if (matchCount == 6) {
-            return FIRST;
+        if (matchCount < 3) {
+            return MISS;
         }
-        if (matchCount == 5 && bonusMatched) {
-            return SECOND;
+        return Arrays.stream(values())
+                .filter(rank -> rank.matchCount == matchCount)
+                .filter(rank -> rank.bonusMatch == bonusMatched)
+                .filter(rank -> rank != MISS)
+                .findFirst()
+                .orElse(MISS);
+    }
+    public String getRankString() {
+        String prizeFormatted = String.format("%,d", prize); // 금액 포맷팅
+
+        if (this == SECOND) {
+            return String.format("%d개 일치, 보너스 볼 일치 (%s원)", matchCount, prizeFormatted);
         }
-        if (matchCount == 5) {
-            return THIRD;
+        if (this == MISS) {
+            return "미당첨"; // 디버깅을 위해 일단...
         }
-        if (matchCount == 4) {
-            return FOURTH;
-        }
-        if (matchCount == 3) {
-            return FIFTH;
-        }
-        return MISS;
+        return String.format("%d개 일치 (%s원)", matchCount, prizeFormatted);
     }
 }

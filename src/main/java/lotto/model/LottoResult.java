@@ -2,29 +2,62 @@ package lotto.model;
 import java.util.Map;
 
 public class LottoResult {
-    private final Map<Rank, Integer> result;
-    private final int purchaseAmount; // 수익률 계산을 위해 필요
 
-    public LottoResult(Map<Rank, Integer> result, int purchaseAmount) {
-        this.result = result;
+    private final int purchaseAmount; // 수익률 계산
+
+    private int countOfFirst = 0;
+    private int countOfSecond = 0;
+    private int countOfThird = 0;
+    private int countOfFourth = 0;
+    private int countOfFifth = 0;
+
+    public LottoResult(int purchaseAmount) {
         this.purchaseAmount = purchaseAmount;
     }
 
-    public Map<Rank, Integer> getWinningCounts() {
-        return result;
+    public void incrementCount(Rank rank) {
+        if (rank == Rank.FIRST) {
+            countOfFirst++;
+            return;
+        }
+        if (rank == Rank.SECOND) {
+            countOfSecond++;
+            return;
+        }
+        if (rank == Rank.THIRD) {
+            countOfThird++;
+            return;
+        }
+        if (rank == Rank.FOURTH) {
+            countOfFourth++;
+            return;
+        }
+        if (rank == Rank.FIFTH) {
+            countOfFifth++;
+            return;
+        }
     }
 
-    public double getTotalPrize() {
-        return result.entrySet().stream()
-                .mapToDouble(entry -> entry.getKey().getPrize() * entry.getValue())
-                .sum();
+    private double getTotalPrize() {
+        return (double) countOfFirst * Rank.FIRST.getPrize() +
+                (double) countOfSecond * Rank.SECOND.getPrize() +
+                (double) countOfThird * Rank.THIRD.getPrize() +
+                (double) countOfFourth * Rank.FOURTH.getPrize() +
+                (double) countOfFifth * Rank.FIFTH.getPrize();
     }
 
     public double calculateProfitRate() {
         if (purchaseAmount == 0) {
             return 0.0;
         }
-        // 총 상금을 구매 금액으로 나누어 수익률을 계산합니다.
-        return (getTotalPrize() / purchaseAmount) * 100.0;
+        double rawRate = (getTotalPrize() / purchaseAmount) * 100.0;
+        return Math.round(rawRate * 100.0) / 100.0; // 소수둘째자리까지
     }
+
+    // OutputView를 위한 Getter 메서드
+    public int getCountOfFirst() { return countOfFirst; }
+    public int getCountOfSecond() { return countOfSecond; }
+    public int getCountOfThird() { return countOfThird; }
+    public int getCountOfFourth() { return countOfFourth; }
+    public int getCountOfFifth() { return countOfFifth; }
 }

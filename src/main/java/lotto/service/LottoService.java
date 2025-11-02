@@ -32,22 +32,18 @@ public class LottoService {
         return new Lottos(purchasedLottos);
     }
 
-    /**
-     * 당첨 번호와 보너스 번호를 사용하여 최종 결과를 계산합니다.
-     */
+
     public LottoResult calculateResults(Lottos purchasedLottos, Lotto winningLotto, int bonusNumber, int purchaseAmount) {
         validateBonusNumber(winningLotto, bonusNumber);
-
-        Map<Rank, Integer> results = initializeResults();
+        LottoResult result = new LottoResult(purchaseAmount);
 
         for (Lotto lotto : purchasedLottos.getLottos()) {
             Rank rank = determineRank(lotto, winningLotto, bonusNumber);
-            incrementRankCount(results, rank);
+            result.incrementCount(rank);
         }
 
-        return new LottoResult(results, purchaseAmount);
+        return result;
     }
-
     private void validateBonusNumber(Lotto winningLotto, int bonusNumber) {
         if (winningLotto.contains(bonusNumber)) {
             throw new IllegalArgumentException("[ERROR] 보너스 번호는 당첨 번호와 중복될 수 없습니다.");
