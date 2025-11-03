@@ -4,9 +4,9 @@ import java.util.List;
 
 public class LottoService {
     private static final int LOTTO_PRICE = 1000;
-    private final LottoGenerator lottoGenerator; // final로 선언하고 생성자 주입을 준비합니다.
+    private final LottoGenerator lottoGenerator; // final로 선언하고 생성자 주입을 준비
 
-    // 생성자를 통해 의존성(LottoGenerator)을 주입받습니다. (Mocking/Stubbing 용이)
+    // 생성자를 통해 의존성(LottoGenerator) (Mocking/Stubbing 용이)
     public LottoService(LottoGenerator lottoGenerator) {
         this.lottoGenerator = lottoGenerator;
     }
@@ -42,7 +42,6 @@ public class LottoService {
 
         for (Lotto lotto : purchasedLottos.getLottos()) {
             Rank rank = determineRank(lotto, winningLotto, bonusNumber);
-
             result.incrementCount(rank);
         }
 
